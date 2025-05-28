@@ -40,4 +40,6 @@ RUN curl -o /usr/local/bin/wait-for-it.sh https://raw.githubusercontent.com/vish
 EXPOSE 9000
 
 # CMD robusto usando wait-for-it
-CMD sh -c "wait-for-it.sh postgres:5432 -- php artisan migrate --force && php artisan db:seed && php-fpm"
+#CMD sh -c "wait-for-it.sh postgres:5432 -- php artisan migrate --force && php artisan db:seed && php-fpm"
+
+CMD sh -c "chown -R www-data:www-data /app/storage /app/bootstrap/cache && chmod -R 775 /app/storage /app/bootstrap/cache && wait-for-it.sh postgres:5432 -- php artisan migrate --force && php artisan db:seed && php-fpm"
