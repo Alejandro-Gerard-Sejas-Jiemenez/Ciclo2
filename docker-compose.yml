@@ -9,7 +9,7 @@ services:
     volumes:
       - ./storage:/app/storage
       - ./bootstrap/cache:/app/bootstrap/cache
-      - ./public:/app/public  # 🚨 Monta public local al contenedor
+      - ./public:/app/public # 🚨 Monta public local al contenedor
     expose:
       - "9000"
     depends_on:
@@ -53,7 +53,7 @@ services:
       - "8080:80"
     volumes:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-      - ./public:/app/public  # 🚨 Monta public local al contenedor de nginx
+      - ./public:/app/public # 🚨 Monta public local al contenedor de nginx
     depends_on:
       - app
       - vite
@@ -79,6 +79,7 @@ services:
 volumes:
   pgdata:
   pgadmin_data:
+
 
 networks:
   backend:

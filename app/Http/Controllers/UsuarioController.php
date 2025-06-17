@@ -6,6 +6,8 @@ use App\Models\Usuario;
 use App\Models\Rol;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\BitacoraController;
+use App\Models\Bitacora;
 
 class UsuarioController extends Controller
 {
@@ -20,7 +22,16 @@ class UsuarioController extends Controller
             'eliminados' => false
         ]);
     }
-
+      //vista principal de gestión de usuarios
+    public function index2()
+    {   
+        $this->authorize('viewAny', Usuario::class); // Solo si tiene permiso 'Ver Usuarios'
+        $usuarios = Usuario::all(); // relacionar con el rol
+        return view('pages.gestion.bitacora.index', [
+            'usuarios' => $usuarios,
+            'eliminados' => false
+        ]);
+    }
     //vista formulario de registro de usuario
     public function create()
     {   $this->authorize('create', Usuario::class); // Solo si tiene permiso 'Agregar Usuarios'
@@ -45,7 +56,10 @@ class UsuarioController extends Controller
         $usuario->password_usuario = $request->password_usuario; //Se encripta automáticamente en el modelo
         $usuario->id_rol = $request->id_rol;
         $usuario->save();
-
+        BitacoraController::registrar(
+            'CREAR',
+            'Se registró un nuevo usuario: ' . $usuario->nombre_usuario
+        );
         return redirect()->route('usuario.index')->with('success', 'Usuario administrador registrado correctamente.');
     }
 
@@ -94,7 +108,10 @@ class UsuarioController extends Controller
         $usuario->correo_usuario = $request->correo_usuario;
         $usuario->id_rol = $request->id_rol;
         $usuario->save();
-
+        BitacoraController::registrar(
+            'EDITAR',
+            'Se actualizó el usuario: ' . $usuario->nombre_usuario
+        );
         return redirect()->route('usuario.index')->with('success', 'Usuario actualizado correctamente.');
     }
 
@@ -107,7 +124,10 @@ class UsuarioController extends Controller
         $usuario = Usuario::findOrFail($id_usuario);
         $this->authorize('delete', $usuario); // Solo si tiene permiso 'Eliminar Usuarios'
         $usuario->delete(); // Eliminación lógica (SoftDeletes)
-
+        BitacoraController::registrar(
+            'ELIMINAR',
+            'Se eliminó el usuario: ' . $usuario->nombre_usuario
+        );
         return redirect()->route('usuario.index')->with('success', 'Usuario eliminado correctamente.');
     }
 

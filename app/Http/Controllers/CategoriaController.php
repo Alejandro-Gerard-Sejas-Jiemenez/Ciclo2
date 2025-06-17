@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Http\Controllers\BitacoraController;    
 use App\Models\Categoria;
 use Illuminate\Http\Request;
 
@@ -30,6 +30,11 @@ class CategoriaController extends Controller
         Categoria::create([
             'nombre_categoria' => $request->nombre_categoria,
         ]);
+        
+        BitacoraController::registrar(
+            'CREAR',
+            'Se creó la categoría: ' . $request->nombre_categoria
+        );
 
         return redirect()->route('categoria.index')->with('success', 'Categoría creada correctamente.');
     }
@@ -47,6 +52,26 @@ class CategoriaController extends Controller
 
         $categoria->delete();
 
+        BitacoraController::registrar(
+            'ELIMINAR',
+            'Se eliminó la categoría: ' . $categoria->nombre_categoria
+        );
         return redirect()->route('categoria.index')->with('success', 'Categoría eliminada correctamente.');
     }
+    public function productosPorCategoria($id)
+    {
+        $categoria = Categoria::with('productos.imagenes')->findOrFail($id);
+        return view('pages.productos.index', compact('categoria'));
+    }
+
+
+
+    //  Mostrar una categoría específica con sus productos
+    /*public function show($id)
+    {
+       $categoria = \App\Models\Categoria::findOrFail($id);
+       $productos = $categoria->productos; 
+      return view('pages.gestion.categorias.show', compact('categoria', 'productos'));
+    }*/
+    //-----------------------------------
 }
