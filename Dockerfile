@@ -1,9 +1,18 @@
 FROM php:8.2-fpm
 
-# Evitar prompts interactivos
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Instalar dependencias del sistema incluyendo Node.js 20
+# Paso 1: instalar herramientas básicas del sistema
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    gnupg \
+    curl \
+    lsb-release
+
+# Paso 2: agregar Node.js 20
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+
+# Paso 3: instalar dependencias adicionales
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpng-dev \
@@ -13,17 +22,18 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     git \
-    curl \
-    ca-certificates \
-    gnupg \
-    lsb-release \
     libpq-dev \
- && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
- && apt-get install -y nodejs \
- && npm install -g npm@10.8.2 \
- && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
+    nodejs
+
+# Paso 4: instalar versión específica de npm
+RUN npm install -g npm@10.8.2
+
+# Paso 5: extensiones de PHP
+RUN docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd zip
+
+# Paso 6: limpieza
+RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+
 
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
