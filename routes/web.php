@@ -19,7 +19,7 @@ use App\Http\Controllers\GestionPreciosController;
 use App\Http\Controllers\EstanteController;
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\Auth\PasswordResetController;
-
+use App\Http\Controllers\ReporteInventarioController;
 
 
 /*
@@ -36,6 +36,10 @@ Route::get('/', [HomeController::class, 'home'])->name('index'); // Vista princi
 Route::get('/producto/{id}', [ProductoController::class, 'show'])->name('producto.show');
 Route::get('/marca/{id}', [MarcaController::class, 'show'])->name('marca.show');
 Route::get('/categoria/{id}', [CategoriaController::class, 'productosPorCategoria'])->name('categoria.productos');
+Route::get('/reporte-inventario', [ReporteInventarioController::class, 'index'])->name('reporte.inventario');
+Route::get('/reporte-inventario/pdf', [ReporteInventarioController::class, 'exportarPDF'])->name('reporte-inventario.pdf');
+
+
 
 // ==================== Rutas de Logout ====================
 // ==================== Rutas de Logout (fuera del middleware) ====================
@@ -96,9 +100,16 @@ Route::middleware(['auth:web', 'prevent-back-history'])->group(function () {
 
     // ==================== Proveedores ====================
     Route::prefix('admin/proveedor')->name('proveedor.')->group(function () {
-        Route::resource('/', ProveedorController::class)->except(['show']);
-        Route::get('/eliminados', [ProveedorController::class, 'eliminados'])->name('eliminados');
-        Route::put('/{id}/restaurar', [ProveedorController::class, 'restore'])->name('restore');
+        Route::get('/', [ProveedorController::class, 'index'])->name('index'); // Listar proveedores
+        Route::get('/create', [ProveedorController::class, 'create'])->name('create'); // Formulario para crear
+        Route::post('/', [ProveedorController::class, 'store'])->name('store'); // Guardar proveedor
+        Route::get('/{id}/edit', [ProveedorController::class, 'edit'])->name('edit'); // Formulario para editar
+        Route::put('/{id}', [ProveedorController::class, 'update'])->name('update'); // Actualizar proveedor
+        Route::delete('/{id}', [ProveedorController::class, 'destroy'])->name('destroy'); // Eliminar proveedor
+
+        // Rutas adicionales
+        Route::get('/eliminados', [ProveedorController::class, 'eliminados'])->name('eliminados'); // Listar eliminados
+        Route::put('/{id}/restaurar', [ProveedorController::class, 'restore'])->name('restore'); // Restaurar proveedor
     });
 
     // ==================== Permisos ====================
@@ -119,6 +130,7 @@ Route::middleware(['auth:web', 'prevent-back-history'])->group(function () {
         // Rutas adicionales
         Route::get('/eliminados', [ProductoController::class, 'eliminados'])->name('eliminados'); // Mostrar productos eliminados
         Route::put('/{id}/restaurar', [ProductoController::class, 'restore'])->name('restore');    // Restaurar producto eliminado
+        Route::get('/{id_producto}/detalle', [ProductoController::class, 'show'])->name('show');
 
     });
 
@@ -147,24 +159,35 @@ Route::middleware(['auth:web', 'prevent-back-history'])->group(function () {
     Route::prefix('admin/area')->name('area.')->group(function () {
         Route::resource('/', AreaController::class)->except(['show']);
     });
-    // ==================== Rutas de Marcas ====================
+    // ==================== Rutas de areas ====================
     Route::prefix('admin/area')->name('area.')->group(function () {
         Route::get('/', [AreaController::class, 'index'])->name('index'); // Listar marca
         Route::get('/create', [AreaController::class, 'create'])->name('create'); // Formulario para registrar marca
         Route::post('/create', [AreaController::class, 'store'])->name('store'); // Guardar marca
         Route::delete('/{id}', [AreaController::class, 'destroy'])->name('destroy'); // Eliminar marca
     });
+
+    // ==================== Rutas de estantes ====================
+    Route::prefix('admin/estante')->name('estante.')->group(function () {
+        Route::get('/', [EstanteController::class, 'index'])->name('index'); // Listar marca
+        Route::get('/create', [EstanteController::class, 'create'])->name('create'); // Formulario para registrar marca
+        Route::post('/create', [EstanteController::class, 'store'])->name('store'); // Guardar marca
+        Route::delete('/{id}', [EstanteController::class, 'destroy'])->name('destroy'); // Eliminar marca
+        Route::resource('/', EstanteController::class)->except(['show']);
+    });
     // ==================== Compras ====================
-    // ==================== Rutas de Marcas ====================
     Route::prefix('admin/compra')->name('compra.')->group(function () {
         Route::resource('/', CompraController::class)->except(['show']);
+        Route::get('/compras/word', [CompraController::class, 'generarReporteWord'])->name('reporte.word');
+        Route::get('/compras', [CompraController::class, 'generarReporte'])->name('reporte');
         Route::get('/compras/{id}', [CompraController::class, 'show'])->name('show');
     });
 
     // ==================== Ventas ====================
     Route::prefix('admin/venta')->name('venta.')->group(function () {
         Route::resource('/', VentaController::class)->except(['show']);
-        Route::get('/compras/{id}', [VentaController::class, 'show'])->name('show');
+        Route::get('/venta/{id}', [VentaController::class, 'show'])->name('show');
+        Route::get('/venta', [VentaController::class, 'generarReporte'])->name('reporte');
     });
 
     // ==================== Rutas de Baja de Productos ====================
@@ -193,6 +216,7 @@ Route::middleware(['auth:web', 'prevent-back-history'])->group(function () {
 
     // ==================== Rutas de Ventas ====================
     Route::prefix('admin/venta')->name('venta.')->group(function () {
+        Route::get('/reporte/word', [VentaController::class, 'generarReporteWord'])->name('reporte.word');
         Route::get('/', [VentaController::class, 'index'])->name('index');
         Route::get('/create', [VentaController::class, 'create'])->name('create');
         Route::post('/create', [VentaController::class, 'store'])->name('store');
@@ -203,6 +227,7 @@ Route::middleware(['auth:web', 'prevent-back-history'])->group(function () {
     // ==================== Rutas de Bitacora ====================
     Route::prefix('admin/bitacora')->name('bitacora.')->group(function () {
         Route::get('/', [BitacoraController::class, 'index'])->name('index'); // Listar marca
+        Route::get('/report', [BitacoraController::class, 'getReport'])->name('report');
     });
 });
 

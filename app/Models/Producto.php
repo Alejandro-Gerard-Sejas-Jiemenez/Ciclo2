@@ -37,6 +37,7 @@ class Producto extends Model
         'stock',               // Cantidad en inventario
         'id_categoria',        // ID de la categoría a la que pertenece
         'id_marca',            // ID de la marca
+        'id_estante',            // ID de la estante
     ];
 
     // ======================= RELACIONES ==========================
@@ -64,7 +65,10 @@ class Producto extends Model
     {
         return $this->hasMany(DetalleVenta::class, 'id_producto', 'id_producto');
     }
-
+    public function bajas()
+    {
+        return $this->hasMany(BajaProducto::class, 'id_producto', 'id_producto');
+    }
     // Relación: un producto pertenece a una marca
     public function marca()
     {
@@ -72,9 +76,9 @@ class Producto extends Model
     }
     
     // Relación: un producto pertenece a un área (antes estaba mal con "Marca")
-    public function area()
+    public function estante()
     {
-        return $this->belongsTo(Area::class, 'id_area');
+        return $this->belongsTo(Estante::class, 'id_estante');
     }
 
 }

@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Bitacora;
 use App\Models\Marca;
 use Illuminate\Http\Request;
-use app\Http\Controllers\BitacoraController;
 
 class MarcaController extends Controller
 {
@@ -14,7 +12,7 @@ class MarcaController extends Controller
      */
     public function index()
     {
-        $marcas = Marca::all();
+        $marcas = Marca::paginate(10);
         return view('pages.gestion.marcas.index', compact('marcas'));
     }
 

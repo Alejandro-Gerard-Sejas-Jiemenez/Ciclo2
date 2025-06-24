@@ -119,11 +119,10 @@
              const proveedores = JSON.parse(`@json($clientes)`);
               console.log(productos); // para confirmar que llega
             let contador = 0;
-            let index = Date.now(); // índice único
-            
-            $('#btn-agregar-producto').click(function () {
-                contador++;
-                console.log(productos); // para confirmar que está accesible aquí
+            $('#btn-agregar-producto').off('click').on('click', function () {
+                let index = Date.now(); // índice único
+                
+                
                 let fila = `
                     
                     <tr>

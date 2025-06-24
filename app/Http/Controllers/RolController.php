@@ -16,7 +16,7 @@ class RolController extends Controller
     public function index()
     {
         $this->authorize('viewAny', Rol::class);
-        $roles = Rol::all(); // Obtener todos los roles
+        $roles = Rol::paginate(10); // Obtener todos los roles
         return view('pages.gestion.roles.index', compact('roles'));
     }
 
@@ -147,7 +147,7 @@ class RolController extends Controller
         $rol->nombre_rol = $request->nombre_rol;
         $rol->save();
         BitacoraController::registrar(
-            'EDITAR',
+            'ACTUALIZAR',
             'Se actualizó el rol: ' . $rol->nombre_rol
         );
         // 🔗 5. Sincronizar los permisos del rol (actualiza la tabla pivote permiso_rol)

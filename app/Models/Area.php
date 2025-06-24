@@ -31,8 +31,8 @@ class Area extends Model
         'nombre_area'
     ];
         // Relación con el modelo Estante
-    public function Producto()
+    public function estante()
     {
-        return $this->hasMany(Producto::class, 'id_area', 'id_area');
+        return $this->hasMany(Estante::class, 'id_area', 'id_area');
     }
 }
