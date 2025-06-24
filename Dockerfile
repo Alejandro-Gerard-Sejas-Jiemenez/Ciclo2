@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
     git \
     curl \
     libpq-dev \
+    ca-certificates \
  && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
  && apt-get install -y nodejs \
  && npm install -g npm@10.8.2 \
